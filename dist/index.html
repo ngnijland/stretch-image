@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    body {
+      margin: 0;
+    }
+
+    .canvas {
+      display: block;
+      width: 700px;
+      height: 500px;
+    }
+  </style>
+</head>
+<body>
+  <input type="file" id="file" accept="image/*" />
+  <canvas id="canvas" />
+
+  <script>
+    window.addEventListener('load', function() {
+      const file = document.getElementById('file');
+
+      file.addEventListener('change', function(e) {
+        compress(e.target.files)
+      });
+    });
+
+    const axes = ['x', 'y'];
+    const ratioRange = [0.75, 1.25]
+    const precision = 100;
+
+    function compress(files) {
+      const fileName = files[0].name;
+      const reader = new FileReader();
+      reader.readAsDataURL(files[0]);
+      reader.onload = event => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const axis = axes[Math.floor(Math.random() * axes.length)]
+          const ratio = (Math.floor(Math.random() * (ratioRange[1] * 100 - ratioRange[0] * 100)) + ratioRange[0] * 100) / 100;
+          const width = axis === 'x' ? img.width * ratio : img.width;
+          const height = axis === 'y' ? img.height * ratio : img.height;
+
+          const canvas = document.getElementById('canvas');
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+  
+
+          ctx.canvas.toBlob((blob) => {
+            const file = new File([blob], fileName, {
+              type: 'image/png',
+              lastModified: Date.now()
+            });
+            console.log(file);
+          }, 'image/png', 1);
+        };
+      };
+    }
+  </script>
+  
+</body>
+</html>
