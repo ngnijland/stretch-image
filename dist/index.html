@@ -9,12 +9,6 @@
     body {
       margin: 0;
     }
-
-    .canvas {
-      display: block;
-      width: 700px;
-      height: 500px;
-    }
   </style>
 </head>
 <body>
@@ -25,27 +19,33 @@
     window.addEventListener('load', function() {
       const file = document.getElementById('file');
 
-      file.addEventListener('change', function(e) {
-        compress(e.target.files)
+      file.addEventListener('change', function({ target: { files } }) {
+        handleFileChange(files);
       });
     });
 
     const axes = ['x', 'y'];
-    const ratioRange = [0.75, 1.25]
-    const precision = 100;
+    const factorRange = [0.75, 1.25];
 
-    function compress(files) {
+    const getRandomAxis = axes => axes[Math.floor(Math.random() * axes.length)];
+    const getRandomFactor = range =>
+      (Math.floor(Math.random() * (range[1] * 100 - range[0] * 100)) +
+        range[0] * 100) /
+      100;
+
+    const handleFileChange = files => {
       const fileName = files[0].name;
+
       const reader = new FileReader();
       reader.readAsDataURL(files[0]);
-      reader.onload = event => {
+      reader.onload = ({ target: { result } }) => {
         const img = new Image();
-        img.src = event.target.result;
+        img.src = result;
         img.onload = () => {
-          const axis = axes[Math.floor(Math.random() * axes.length)]
-          const ratio = (Math.floor(Math.random() * (ratioRange[1] * 100 - ratioRange[0] * 100)) + ratioRange[0] * 100) / 100;
-          const width = axis === 'x' ? img.width * ratio : img.width;
-          const height = axis === 'y' ? img.height * ratio : img.height;
+          const axis = getRandomAxis(axes);
+          const factor = getRandomFactor(factorRange);
+          const width = axis === 'x' ? img.width * factor : img.width;
+          const height = axis === 'y' ? img.height * factor : img.height;
 
           const canvas = document.getElementById('canvas');
           canvas.width = width;
@@ -53,18 +53,20 @@
 
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
-  
 
-          ctx.canvas.toBlob((blob) => {
-            const file = new File([blob], fileName, {
-              type: 'image/png',
-              lastModified: Date.now()
-            });
-            console.log(file);
-          }, 'image/png', 1);
+          ctx.canvas.toBlob(
+            blob => {
+              const file = new File([blob], fileName, {
+                type: 'image/png',
+                lastModified: Date.now()
+              });
+            },
+            'image/png',
+            1
+          );
         };
       };
-    }
+    };
   </script>
   
 </body>
