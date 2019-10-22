@@ -15,59 +15,7 @@
   <input type="file" id="file" accept="image/*" />
   <canvas id="canvas" />
 
-  <script>
-    window.addEventListener('load', function() {
-      const file = document.getElementById('file');
-
-      file.addEventListener('change', function({ target: { files } }) {
-        handleFileChange(files);
-      });
-    });
-
-    const axes = ['x', 'y'];
-    const factorRange = [0.75, 1.25];
-
-    const getRandomAxis = axes => axes[Math.floor(Math.random() * axes.length)];
-    const getRandomFactor = range =>
-      (Math.floor(Math.random() * (range[1] * 100 - range[0] * 100)) +
-        range[0] * 100) /
-      100;
-
-    const handleFileChange = files => {
-      const fileName = files[0].name;
-
-      const reader = new FileReader();
-      reader.readAsDataURL(files[0]);
-      reader.onload = ({ target: { result } }) => {
-        const img = new Image();
-        img.src = result;
-        img.onload = () => {
-          const axis = getRandomAxis(axes);
-          const factor = getRandomFactor(factorRange);
-          const width = axis === 'x' ? img.width * factor : img.width;
-          const height = axis === 'y' ? img.height * factor : img.height;
-
-          const canvas = document.getElementById('canvas');
-          canvas.width = width;
-          canvas.height = height;
-
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-
-          ctx.canvas.toBlob(
-            blob => {
-              const file = new File([blob], fileName, {
-                type: 'image/png',
-                lastModified: Date.now()
-              });
-            },
-            'image/png',
-            1
-          );
-        };
-      };
-    };
-  </script>
+  <script src="../build/index.js"></script>
   
 </body>
 </html>
